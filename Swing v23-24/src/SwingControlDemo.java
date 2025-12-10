@@ -1,0 +1,311 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URL;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+public class SwingControlDemo implements ActionListener {
+    private JFrame mainFrame;
+    private JLabel statusLabel;
+    private JLabel imageLabel;
+    private JPanel imagePanel;
+    private JPanel searchPanel;
+    private JPanel controlPanel;
+    private JMenuBar mb;
+    private JMenu file, edit, help;
+    private JMenuItem cut, copy, paste, selectAll;
+    private JTextArea ta; //typing area
+    private int WIDTH = 800;
+    private int HEIGHT = 700;
+
+    int pokemon = 0;
+
+    public SwingControlDemo() {
+        prepareGUI();
+    }
+
+
+    public void pull() throws ParseException {
+
+        String output = "abc";
+        String totlaJson = "";
+
+        try {
+
+            URL url = new URL("https://pokeapi.co/api/v2/pokemon/" + pokemon);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+            //if you get the error 403, uncomment line of code below
+            //conn.setRequestProperty("User-Agent", "Mozilla/5.0"); // Add User-Agent
+
+
+            if (conn.getResponseCode() != 200) {
+
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    (conn.getInputStream())));
+
+
+            System.out.println("Output from Server .... \n");
+            while ((output = br.readLine()) != null) {
+                //System.out.println(output);
+                totlaJson += output;
+            }
+
+            conn.disconnect();
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        JSONParser parser = new JSONParser();
+        //System.out.println(str);
+        org.json.simple.JSONObject jsonObject = (org.json.simple.JSONObject) parser.parse(totlaJson);
+        //System.out.println(jsonObject);
+
+        try {
+
+            String name = (String) jsonObject.get("name");
+            String pleasework = "";
+
+            org.json.simple.JSONArray abilities = (org.json.simple.JSONArray) jsonObject.get("abilities");
+            //org.json.simple.JSONArray starships = (org.json.simple.JSONArray) jsonObject.get("starships");
+            //int n = msg.size(); //(msg).length();
+            int n2 = abilities.size();
+//            for (int i = 0; i < n; ++i) {
+//                String test =(String) msg.get(i);
+//                System.out.println(test);
+//                // System.out.println(person.getInt("key"));
+//            }
+            for (int i = 0; i < n2; i++) {
+                org.json.simple.JSONObject abilityContainer = (org.json.simple.JSONObject) abilities.get(i);
+                //only find ability
+                org.json.simple.JSONObject abilityDetails = (org.json.simple.JSONObject) abilityContainer.get("ability");
+
+                // 4. Get the name from the ability object in teh array
+                String abilityName = (String) abilityDetails.get("name");
+                System.out.println("ability " + (i + 1) + ": " + abilityName);
+            }
+            //System.out.println(name);
+            //System.out.println(hair_color);
+            //System.out.println(starship);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public static void main(String[] args) throws IOException {
+        SwingControlDemo swingControlDemo = new SwingControlDemo();
+        swingControlDemo.addImage();
+    }
+
+    private void prepareGUI() {
+        mainFrame = new JFrame("Layout Images are awesome");
+        mainFrame.setSize(WIDTH, HEIGHT);
+        mainFrame.setLayout(new BorderLayout());
+
+        //menu at top
+        cut = new JMenuItem("cut");
+        copy = new JMenuItem("copy");
+        paste = new JMenuItem("paste");
+        selectAll = new JMenuItem("selectAll");
+        cut.addActionListener(this);
+        copy.addActionListener(this);
+        paste.addActionListener(this);
+        selectAll.addActionListener(this);
+
+        mb = new JMenuBar();
+        file = new JMenu("File");
+        edit = new JMenu("Edit");
+        help = new JMenu("Help");
+        edit.add(cut);
+        edit.add(copy);
+        edit.add(paste);
+        edit.add(selectAll);
+        mb.add(file);
+        mb.add(edit);
+        mb.add(help);
+        //end menu at top
+
+        ta = new JTextArea("Pokemon: ");
+        ta.setBounds(50, 5, WIDTH - 100, HEIGHT - 50);
+        mainFrame.add(mb);  //add menu bar
+
+        mainFrame.setJMenuBar(mb); //set menu bar
+
+        //  statusLabel = new JLabel("Label", JLabel.CENTER);
+        //   statusLabel.setSize(350, 100);
+
+        mainFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent windowEvent) {
+                System.exit(0);
+            }
+        });
+        imagePanel = new JPanel();
+        searchPanel = new JPanel();
+        searchPanel.setLayout(new BorderLayout());
+        controlPanel = new JPanel();
+        controlPanel.setLayout(new FlowLayout()); //set the layout of the pannel
+
+
+        JButton okButton = new JButton("OK");
+        okButton.setActionCommand("OK");
+        okButton.addActionListener(new ButtonClickListener());
+        searchPanel.add(okButton, BorderLayout.EAST);
+
+        searchPanel.add(ta, BorderLayout.CENTER);//add typing area
+        controlPanel.setLayout(new FlowLayout()); //set the layout of the pannel
+        JButton nextButton = new JButton("Next");
+        JButton backButton = new JButton("Back");
+        JButton quitButton = new JButton("Quit");
+
+        nextButton.setActionCommand("Next");
+        backButton.setActionCommand("Back");
+        quitButton.setActionCommand("Quit");
+
+        nextButton.addActionListener(new ButtonClickListener());
+        backButton.addActionListener(new ButtonClickListener());
+        quitButton.addActionListener(new ButtonClickListener());
+
+        controlPanel.add(nextButton, BorderLayout.CENTER);
+        controlPanel.add(backButton, BorderLayout.WEST);
+        controlPanel.add(quitButton, BorderLayout.EAST);
+        mainFrame.add(searchPanel, BorderLayout.NORTH);
+        mainFrame.add(controlPanel, BorderLayout.SOUTH);
+        mainFrame.setVisible(true);
+    }
+
+    private void addImage() throws IOException {
+        try {
+            String path = "";
+            if (!ta.getText().contains("http")) {
+                path = "https://i.pinimg.com/originals/07/16/ba/0716ba54fe3b77b3a5b0b16c7bc33389.png";
+            } else {
+                path = ta.getText();
+                if (path.contains("url")) {
+                    path = path.substring(path.indexOf("http"));
+                }
+            }
+
+
+            URL url = new URL(path);
+            BufferedImage ErrorImage = ImageIO.read(new File("Error.png"));
+            BufferedImage inputImageBuff = ImageIO.read(url.openStream());
+
+
+            ImageIcon inputImage;
+            if (inputImageBuff != null) {
+                inputImage = new ImageIcon(inputImageBuff.getScaledInstance(800, 700, Image.SCALE_SMOOTH));
+                // = new JLabel();
+                if (inputImage != null) {
+                    imageLabel = new JLabel(inputImage);
+                } else {
+                    imageLabel = new JLabel(new ImageIcon(ErrorImage.getScaledInstance(800, 589, Image.SCALE_SMOOTH)));
+
+                }
+                imagePanel.removeAll();
+                imagePanel.repaint();
+
+                imagePanel.add(imageLabel);
+                mainFrame.add(imagePanel, BorderLayout.CENTER);
+
+            } else {
+                imageLabel = new JLabel(new ImageIcon(ErrorImage.getScaledInstance(800, 589, Image.SCALE_SMOOTH)));
+
+            }
+
+        } catch (IOException e) {
+            System.out.println(e);
+            System.out.println("sadness");
+            BufferedImage ErrorImage = ImageIO.read(new File("Error.png"));
+            JLabel imageLabel = new JLabel(new ImageIcon(ErrorImage.getScaledInstance(800, 589, Image.SCALE_SMOOTH)));
+
+            imagePanel.removeAll();
+            imagePanel.repaint();
+            imagePanel.add(imageLabel);
+            mainFrame.add(imagePanel);
+
+        }
+
+
+        mainFrame.setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == cut)
+            ta.cut();
+        if (e.getSource() == paste)
+            ta.paste();
+        if (e.getSource() == copy)
+            ta.copy();
+        if (e.getSource() == selectAll)
+            ta.selectAll();
+    }
+
+
+
+    private class ButtonClickListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+
+            if (command.equals("OK")) {
+                try {
+                    System.out.println("anothertestprintok");
+                    imagePanel.removeAll();
+                    addImage();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+                if (command.equals("Next")) {
+                    try {
+                        System.out.println("testprint");
+                        pokemon++;
+                        pull();
+                        System.out.println(pokemon);
+
+
+                    } catch (ParseException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+            if (command.equals("Back")) {
+                try {
+                    System.out.println("testprint");
+                    pokemon--;
+                    pull();
+                    System.out.println(pokemon);
+
+
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                }
+            }
+                // statusLabel.setText("Ok Button clicked.")
+        }
+    }
+}
