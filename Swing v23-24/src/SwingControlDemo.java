@@ -32,6 +32,9 @@ public class SwingControlDemo implements ActionListener {
     private int HEIGHT = 700;
 
     int pokemon = 0;
+    String pokemonstring = "";
+    String findpokemon = "";
+    private String currentImageUrl = "";
 
     public SwingControlDemo() {
         prepareGUI();
@@ -42,10 +45,18 @@ public class SwingControlDemo implements ActionListener {
 
         String output = "abc";
         String totlaJson = "";
-
+        pokemonstring = ta.getText().substring(9);
         try {
-
-            URL url = new URL("https://pokeapi.co/api/v2/pokemon/" + pokemon);
+            URL url = new URL("https://pokeapi.co/api/v2/pokemon/");
+            if (pokemonstring.isEmpty()) {
+                url = new URL("https://pokeapi.co/api/v2/pokemon/" + pokemon);
+                System.out.println("used pokemon: " + pokemon);
+                System.out.println(pokemonstring = "pokemonstring");
+            }
+            else {
+                url = new URL("https://pokeapi.co/api/v2/pokemon/" + pokemonstring);
+                System.out.println("used pokemonstring: " + pokemonstring);
+            }
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
@@ -96,6 +107,10 @@ public class SwingControlDemo implements ActionListener {
 //                String test =(String) msg.get(i);
 //                System.out.println(test);
 //                // System.out.println(person.getInt("key"));
+            org.json.simple.JSONObject sprites = (org.json.simple.JSONObject) jsonObject.get("sprites");
+            String imageUrl = (String) sprites.get("front_default");
+            currentImageUrl = imageUrl;
+            System.out.println("Image URL: " + currentImageUrl);
 //            }
             for (int i = 0; i < n2; i++) {
                 org.json.simple.JSONObject abilityContainer = (org.json.simple.JSONObject) abilities.get(i);
@@ -105,6 +120,7 @@ public class SwingControlDemo implements ActionListener {
                 // 4. Get the name from the ability object in teh array
                 String abilityName = (String) abilityDetails.get("name");
                 System.out.println("ability " + (i + 1) + ": " + abilityName);
+                //comment later
             }
             //System.out.println(name);
             //System.out.println(hair_color);
@@ -155,8 +171,8 @@ public class SwingControlDemo implements ActionListener {
 
         mainFrame.setJMenuBar(mb); //set menu bar
 
-        //  statusLabel = new JLabel("Label", JLabel.CENTER);
-        //   statusLabel.setSize(350, 100);
+        statusLabel = new JLabel("Label", JLabel.CENTER);
+        statusLabel.setSize(350, 100);
 
         mainFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent windowEvent) {
@@ -201,7 +217,7 @@ public class SwingControlDemo implements ActionListener {
         try {
             String path = "";
             if (!ta.getText().contains("http")) {
-                path = "https://i.pinimg.com/originals/07/16/ba/0716ba54fe3b77b3a5b0b16c7bc33389.png";
+                path = currentImageUrl;
             } else {
                 path = ta.getText();
                 if (path.contains("url")) {
@@ -274,8 +290,9 @@ public class SwingControlDemo implements ActionListener {
             if (command.equals("OK")) {
                 try {
                     System.out.println("anothertestprintok");
-                    imagePanel.removeAll();
+                    System.out.println("where is teh poke" + pokemonstring);
                     addImage();
+                    imagePanel.removeAll();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -285,10 +302,11 @@ public class SwingControlDemo implements ActionListener {
                         System.out.println("testprint");
                         pokemon++;
                         pull();
+                        addImage();
                         System.out.println(pokemon);
 
 
-                    } catch (ParseException ex) {
+                    } catch (ParseException | IOException ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -298,11 +316,14 @@ public class SwingControlDemo implements ActionListener {
                     System.out.println("testprint");
                     pokemon--;
                     pull();
+                    addImage();
                     System.out.println(pokemon);
 
 
                 } catch (ParseException ex) {
                     ex.printStackTrace();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
                 }
             }
                 // statusLabel.setText("Ok Button clicked.")
