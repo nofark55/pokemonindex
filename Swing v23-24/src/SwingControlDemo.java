@@ -106,19 +106,32 @@ public class SwingControlDemo implements ActionListener {
             String name = (String) jsonObject.get("name");
             JLabel pokename = new JLabel(name.toUpperCase());
             pokename.setFont(new Font("Ariel", Font.BOLD, 24));
+            long basexp;
+            long height;
+            long ident;
+            long weight;
+            height = (long) jsonObject.get("height");
+            weight = (long) jsonObject.get("weight");
+            basexp = (long) jsonObject.get("base_experience");
+            ident = (long) jsonObject.get("id");
+            System.out.println("BASEXP: " + basexp);
 
-            pokename.setAlignmentX(Component.CENTER_ALIGNMENT);
+            infopanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             infopanel.add(Box.createVerticalStrut(20));
             infopanel.add(pokename);
             infopanel.add(Box.createVerticalStrut(15));
-
+            JLabel ability = new JLabel("Abilities");
+            infopanel.add(ability);
+            ability.setFont(new Font("Ariel", Font.BOLD, 15));
+            infopanel.add(Box.createVerticalStrut(15));
 
             org.json.simple.JSONArray abilities = (org.json.simple.JSONArray) jsonObject.get("abilities");
             int n2 = abilities.size();
             org.json.simple.JSONObject sprites = (org.json.simple.JSONObject) jsonObject.get("sprites");
             currentImageUrl = (String) sprites.get("front_default");
             System.out.println("Image URL: " + currentImageUrl);
+
 //            }
             for (int i = 0; i < n2; i++) {
                 org.json.simple.JSONObject abilityContainer = (org.json.simple.JSONObject) abilities.get(i);
@@ -129,9 +142,27 @@ public class SwingControlDemo implements ActionListener {
                 String abilityName = (String) abilityDetails.get("name");
                 System.out.println("ability " + (i + 1) + ": " + abilityName);
                 infopanel.add(Box.createVerticalStrut(15));
-                infopanel.add(new JLabel("Ability " + (i+1) +"- " + abilityName));
+                infopanel.add(new JLabel("Ability " + (i + 1) + "- " + abilityName));
                 //comment later
             }
+
+            infopanel.add(Box.createVerticalStrut(20));
+            JLabel stats = new JLabel("Stats");
+            infopanel.add(stats);
+            stats.setFont(new Font("Ariel", Font.BOLD, 15));
+            infopanel.add(Box.createVerticalStrut(15));
+            JLabel xp = new JLabel("Base Experience: " + basexp);
+            infopanel.add(xp);
+            infopanel.add(Box.createVerticalStrut(15));
+            JLabel hight = new JLabel("Height: " + height);
+            infopanel.add(hight);
+            infopanel.add(Box.createVerticalStrut(15));
+            JLabel id = new JLabel("Id: " + ident);
+            infopanel.add(id);
+            infopanel.add(Box.createVerticalStrut(15));
+            JLabel mass = new JLabel("Weight: " + weight);
+            infopanel.add(mass);
+
             infopanel.revalidate();
             infopanel.repaint();
             //System.out.println(name);
@@ -255,7 +286,7 @@ public class SwingControlDemo implements ActionListener {
 
             ImageIcon inputImage;
             if (inputImageBuff != null) {
-                inputImage = new ImageIcon(inputImageBuff.getScaledInstance(800, 700, Image.SCALE_SMOOTH));
+                inputImage = new ImageIcon(inputImageBuff.getScaledInstance(533, 467, Image.SCALE_SMOOTH));
                 // = new JLabel();
                 if (inputImage != null) {
                     imageLabel = new JLabel(inputImage);
