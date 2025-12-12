@@ -393,6 +393,10 @@ public class SwingControlDemo implements ActionListener {
                     throw new RuntimeException(ex);
                 }
             }
+            //quit project
+            if (command.equals("Quit")) {
+                System.exit(0);
+            }
                 // statusLabel.setText("Ok Button clicked.")
         }
     }
