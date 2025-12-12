@@ -17,7 +17,7 @@ import java.net.URL;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
+//got image code from linked GitHub
 public class SwingControlDemo implements ActionListener {
     private JFrame mainFrame;
     private JLabel statusLabel;
@@ -35,7 +35,7 @@ public class SwingControlDemo implements ActionListener {
     private boolean issearch = false;
     private JPanel doublepanel;
     private JPanel infopanel;
-
+    //api starts on one, got error if it wasn't on one
     int pokemon = 1;
     String pokemonstring = "";
     String findpokemon = "";
@@ -55,6 +55,7 @@ public class SwingControlDemo implements ActionListener {
         pokemonstring = ta.getText().substring(9);
         try {
             URL url = new URL("https://pokeapi.co/api/v2/pokemon/");
+            //this checks if it is a search, or if it is from clicking the ok button. this is used to proc either the pull in pokemonstring or pokemon.
             if (!issearch) {
                 url = new URL("https://pokeapi.co/api/v2/pokemon/" + pokemon);
                 System.out.println("used pokemon: " + pokemon);
@@ -106,10 +107,12 @@ public class SwingControlDemo implements ActionListener {
             String name = (String) jsonObject.get("name");
             JLabel pokename = new JLabel(name.toUpperCase());
             pokename.setFont(new Font("Ariel", Font.BOLD, 24));
+            //defining longs for use with api collection for every pull
             long basexp;
             long height;
             long ident;
             long weight;
+            //uses the things like height and turns them into data from the json object jsonObject
             height = (long) jsonObject.get("height");
             weight = (long) jsonObject.get("weight");
             basexp = (long) jsonObject.get("base_experience");
@@ -117,7 +120,7 @@ public class SwingControlDemo implements ActionListener {
             System.out.println("BASEXP: " + basexp);
 
             infopanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+            //I added some spacing to make it clear when things were new
             infopanel.add(Box.createVerticalStrut(20));
             infopanel.add(pokename);
             infopanel.add(Box.createVerticalStrut(15));
@@ -125,7 +128,7 @@ public class SwingControlDemo implements ActionListener {
             infopanel.add(ability);
             ability.setFont(new Font("Ariel", Font.BOLD, 15));
             infopanel.add(Box.createVerticalStrut(15));
-
+            //because things are order linearly, I had to write the other half of the code after the for loop. took a while to figure out
             org.json.simple.JSONArray abilities = (org.json.simple.JSONArray) jsonObject.get("abilities");
             int n2 = abilities.size();
             org.json.simple.JSONObject sprites = (org.json.simple.JSONObject) jsonObject.get("sprites");
@@ -162,7 +165,7 @@ public class SwingControlDemo implements ActionListener {
             infopanel.add(Box.createVerticalStrut(15));
             JLabel mass = new JLabel("Weight: " + weight);
             infopanel.add(mass);
-
+            //redoes the painting everytime to make sure that the residual images and text from the previous pokemon arent there
             infopanel.revalidate();
             infopanel.repaint();
             //System.out.println(name);
@@ -170,6 +173,7 @@ public class SwingControlDemo implements ActionListener {
             //System.out.println(starship);
         } catch (Exception e) {
             e.printStackTrace();
+            //removes stuf if there is an error, needd this for try catch.
             infopanel.removeAll();
             infopanel.add(new JLabel("ERROR: Fix your code"));
             infopanel.revalidate();
@@ -254,7 +258,7 @@ public class SwingControlDemo implements ActionListener {
         nextButton.addActionListener(new ButtonClickListener());
         backButton.addActionListener(new ButtonClickListener());
         quitButton.addActionListener(new ButtonClickListener());
-
+        //the double panel is a double panel with the image label and the info panel. I made it a grid so that users could easily see both things
         controlPanel.add(nextButton, BorderLayout.CENTER);
         controlPanel.add(backButton, BorderLayout.WEST);
         controlPanel.add(quitButton, BorderLayout.EAST);
@@ -286,8 +290,9 @@ public class SwingControlDemo implements ActionListener {
 
             ImageIcon inputImage;
             if (inputImageBuff != null) {
+                //image scaled down to fit by 2/3 from the og
                 inputImage = new ImageIcon(inputImageBuff.getScaledInstance(533, 467, Image.SCALE_SMOOTH));
-                // = new JLabel();
+                //sets the image to the image
                 if (inputImage != null) {
                     imageLabel = new JLabel(inputImage);
                 } else {
@@ -342,6 +347,7 @@ public class SwingControlDemo implements ActionListener {
 
             if (command.equals("OK")) {
                 try {
+                    //sends stuff to pull, half the logic for deciding what image to do is here, and the other half is in the pull
                     System.out.println("anothertestprintok");
                     System.out.println("where is teh poke" + pokemonstring);
                     issearch = true;
@@ -354,6 +360,7 @@ public class SwingControlDemo implements ActionListener {
                 if (command.equals("Next")) {
                     try {
                         System.out.println("testprint");
+                        //edge case of forward from 1026, the highest id
                         if(pokemon == 1026) {
                             pokemon = 1;
                         }
@@ -370,6 +377,7 @@ public class SwingControlDemo implements ActionListener {
             if (command.equals("Back")) {
                 try {
                     System.out.println("testprint");
+                    //oppsite edge case
                     if(pokemon == 1) {
                         pokemon = 1026;
                     }
